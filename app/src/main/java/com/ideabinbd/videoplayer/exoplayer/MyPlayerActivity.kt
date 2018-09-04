@@ -8,6 +8,8 @@ import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.extractor.DefaultExtractorInput
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -50,9 +52,12 @@ class MyPlayerActivity : AppCompatActivity() {
     }
 
     private fun buildMediaSource(uri: Uri?): MediaSource? {
+        //use this for default single file play
         return ExtractorMediaSource.Factory(
                 DefaultHttpDataSourceFactory(getString(R.string.app_agent)))
                 .createMediaSource(uri)
+
+
     }
 
     private fun hideSystemUi() {
