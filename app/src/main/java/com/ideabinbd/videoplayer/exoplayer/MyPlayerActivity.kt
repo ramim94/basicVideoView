@@ -8,9 +8,12 @@ import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.upstream.DefaultDataSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.ideabinbd.videoplayer.R
@@ -50,9 +53,23 @@ class MyPlayerActivity : AppCompatActivity() {
     }
 
     private fun buildMediaSource(uri: Uri?): MediaSource? {
-        return ExtractorMediaSource.Factory(
-                DefaultHttpDataSourceFactory(getString(R.string.app_agent)))
-                .createMediaSource(uri)
+        //use this for concatenated media source
+        val dataSourceFactory = DefaultHttpDataSourceFactory(getString(R.string.app_agent))
+        val extractorsFactory = DefaultExtractorsFactory();
+
+        val videoSource = ExtractorMediaSource.Factory(
+                DefaultHttpDataSourceFactory(
+                        getString(R.string.app_agent)
+                )
+        ).createMediaSource(uri)
+
+        val audioUri = Uri.parse(getString(R.string.media_url_mp3))
+
+        val audioSource= ExtractorMediaSource.Factory(
+                DefaultHttpDataSourceFactory(getString(R.string.app_agent))
+        ).createMediaSource(audioUri)
+
+        return ConcatenatingMediaSource(audioSource,videoSource)
     }
 
     private fun hideSystemUi() {
