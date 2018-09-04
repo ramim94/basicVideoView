@@ -12,7 +12,13 @@ import com.google.android.exoplayer2.extractor.DefaultExtractorInput
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.dash.DashChunkSource
+import com.google.android.exoplayer2.source.dash.DashMediaSource
+import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.trackselection.TrackSelection
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.ideabinbd.videoplayer.R
@@ -21,10 +27,13 @@ import kotlinx.android.synthetic.main.activity_my_player.*
 class MyPlayerActivity : AppCompatActivity() {
     lateinit var mySimplePlayer : SimpleExoPlayer
 
+    lateinit var _bandwidthMeter: DefaultBandwidthMeter;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_player)
+
+        _bandwidthMeter= DefaultBandwidthMeter()
 
         initializePlayer()
     }
@@ -34,9 +43,12 @@ class MyPlayerActivity : AppCompatActivity() {
     var playbackPosition :Long =0 ;
 
     private fun initializePlayer(){
+        //for adaptive tracks or streaming only
+        val adaptiveTrackSelection = AdaptiveTrackSelection.Factory(_bandwidthMeter)
+
         mySimplePlayer= ExoPlayerFactory.newSimpleInstance(
                 DefaultRenderersFactory(this),
-                DefaultTrackSelector(),
+                DefaultTrackSelector(adaptiveTrackSelection),
                 DefaultLoadControl()
         )
 
@@ -45,17 +57,25 @@ class MyPlayerActivity : AppCompatActivity() {
         mySimplePlayer.playWhenReady= playWhenReady
         mySimplePlayer.seekTo(currentWindow,playbackPosition)
 
-        val uri = Uri.parse(getString(R.string.localMedia_url_mp4))
+        val uri = Uri.parse(getString(R.string.media_url_dash))
         val mediasource = buildMediaSource(uri)
 
         mySimplePlayer.prepare(mediasource,true,false)
     }
 
     private fun buildMediaSource(uri: Uri?): MediaSource? {
-        //use this for default single file play
-        return ExtractorMediaSource.Factory(
-                DefaultHttpDataSourceFactory(getString(R.string.app_agent)))
-                .createMediaSource(uri)
+        //building media source for adaptive stream
+
+        val manifestDataSourceFactory= DefaultHttpDataSourceFactory("ua")
+
+        val dashChunkSourceFactory= DefaultDashChunkSource.Factory(
+                DefaultHttpDataSourceFactory("ua",_bandwidthMeter)
+        )
+
+        return DashMediaSource.Factory(
+                dashChunkSourceFactory,
+                manifestDataSourceFactory
+        ).createMediaSource(uri)
 
 
     }
