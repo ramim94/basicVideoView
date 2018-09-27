@@ -36,4 +36,10 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-core:2.7.3'
     implementation 'com.google.android.exoplayer:exoplayer-dash:2.7.3'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.7.3'
+
+    //for qrScanner
+    implementation 'me.dm7.barcodescanner:zxing:1.9.8'
+
+    //for permission sept 2018
+    implementation 'com.nabinbhandari.android:permissions:3.7'
 }

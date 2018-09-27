@@ -20,11 +20,14 @@ import kotlinx.android.synthetic.main.activity_my_player.*
 
 class MyPlayerActivity : AppCompatActivity() {
     lateinit var mySimplePlayer : SimpleExoPlayer
+    lateinit var contentUrl: String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_player)
+
+        contentUrl= intent.getStringExtra("contentUrl")
 
         initializePlayer()
     }
@@ -45,7 +48,7 @@ class MyPlayerActivity : AppCompatActivity() {
         mySimplePlayer.playWhenReady= playWhenReady
         mySimplePlayer.seekTo(currentWindow,playbackPosition)
 
-        val uri = Uri.parse(getString(R.string.localMedia_url_mp4))
+        val uri = Uri.parse(contentUrl)
         val mediasource = buildMediaSource(uri)
 
         mySimplePlayer.prepare(mediasource,true,false)
